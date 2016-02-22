@@ -10,7 +10,7 @@ int farenl;
 void setup(){
   size(640,480);
   background(0);
-  json = loadJSONObject("http://api.wunderground.com/api/80f1d5a5840a3499/forecast/conditions/q/NY/Manhattan.json");
+  json = loadJSONObject("http://api.wunderground.com/api/<key>/forecast/conditions/q/NY/Manhattan.json");
   //println(json);
   values = (json.getJSONObject("forecast").getJSONObject("simpleforecast").getJSONArray("forecastday"));
   for (int i = 0; i < values.size(); i++) {
