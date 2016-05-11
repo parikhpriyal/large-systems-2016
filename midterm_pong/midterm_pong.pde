@@ -1,5 +1,3 @@
-//code help from https://processing.org/examples/keyboardfunctions.html and http://www.openprocessing.org/sketch/47481
-
 import oscP5.*;
 import netP5.*;
 
@@ -10,11 +8,12 @@ OscMessage send;
 
 //paddle and ball variables
 float pad1, pad2, posX, posY;
-int radius = 20;
+float xPos = 0.0;
+int radius = 20; 
 int padHeight = 100;
 float speedX = random(3, 5);
 float speedY = random(3, 5); 
-
+  
 //game variables
 boolean startPong = false;
 float begin = 0;
@@ -62,8 +61,13 @@ void oscEvent(OscMessage received){
     println("StartPong is set to:" + startPong);
   }
   
-  if(received.checkAddrPattern("player")){
-    pad2 = received.get(0).floatValue();
+  if(received.checkAddrPattern("/player/position  ")){
+    pad2 = received.get(1).floatValue();
+  }
+  
+  if(received.checkAddrPattern("/ball/position  ")){
+    posX = received.get(0).floatValue();
+    posY = received.get(1).floatValue();
   }
 }
 
@@ -78,6 +82,9 @@ void keyPressed(){
 
 //game conditions
 void moveBall(){
+  //ball position
+  ellipse(posX, posY, radius, radius);
+  
   //ball posiiton co-ordinates
   posX = posX + speedX;
   posY = posY + speedY;
@@ -106,6 +113,11 @@ void moveBall(){
     player1 = 0;
     player2 = 0;
   }
+  //send ball paddle position
+  OscMessage ball = new OscMessage("/ball/position");
+  ball.add(posX);
+  ball.add(posY);
+  oscp5.send(ball, mrl);
 }
 
 //paddles move
@@ -113,13 +125,12 @@ void paddles(){
   //define own paddle position
   pad1 = mouseY;
   //paddle1
-  rect(0, pad1, 10, padHeight);
+  rect(xPos, pad1, 10, padHeight);
   //paddle2
   rect(490, pad2, 10, padHeight);
-  //ball position
-  ellipse(posX, posY, radius, radius);
   //send own paddle position
-  OscMessage message = new OscMessage("player");
-  message.add(pad1);
-  oscp5.send(message, mrl);
+  OscMessage paddle = new OscMessage("/player/position");
+  paddle.add(xPos);
+  paddle.add(pad1);
+  oscp5.send(paddle, mrl);
 }
